@@ -5,7 +5,7 @@ Plugin URI:  https://github.com/mark2me/sig-small-menu
 Description: 利用佈景的自訂選單製作出側邊和手機版底部的固定位置選單。
 Author:       Simon Chunag
 Author URI:   https://github.com/mark2me
-Version:      1.0.1
+Version:      1.0
 Text Domain:  sig-small-menu
 Domain Path:  /languages
 */
