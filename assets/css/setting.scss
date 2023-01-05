@@ -1,0 +1,62 @@
+.wp-admin {
+    .wrap {
+
+        form {
+            h2 {
+                margin: 0;
+                padding: 12px 0 12px 15px;
+                font-size: 20px;
+                cursor: pointer;
+                &:after{
+                    content: '\f107';
+                    font-family: "fontello";
+                    font-style: normal;
+                    font-weight: normal;
+                    speak: never;
+
+                    display: inline-block;
+                    text-decoration: inherit;
+                    width: 1em;
+                    margin-right: .2em;
+                    text-align: center;
+                    font-variant: normal;
+                    text-transform: none;
+                    line-height: 1em;
+                    margin-left: .2em;
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                }
+            }
+
+            h2.open{
+                &:after{
+                    content: '\f106';
+                }
+            }
+
+            .sig-panel-settings {
+                margin: 0 15px 15px 15px;
+                border-top: 1px solid #eee;
+            }
+
+        }
+
+        .flex-middle{
+            @media(min-width:576px){
+                display: flex;
+                align-items: center;
+                p+p{
+                    margin-left: 30px;
+                }
+            }
+        }
+
+        button{
+            margin: 0 0 0 5px !important;
+        }
+
+
+
+    }
+
+}

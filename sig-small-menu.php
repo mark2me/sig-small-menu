@@ -5,7 +5,7 @@ Plugin URI:  https://github.com/mark2me/sig-small-menu
 Description: 利用佈景的自訂選單製作出側邊和手機版底部的固定位置選單。
 Author:       Simon Chunag
 Author URI:   https://github.com/mark2me
-Version:      1.0
+Version:      1.0.1
 Text Domain:  sig-small-menu
 Domain Path:  /languages
 */
@@ -27,7 +27,7 @@ class SIG_SMALL_MENU {
 
         add_action( 'after_setup_theme', function(){
             register_nav_menus( array(
-                self::PLUGIN_SLUG => '自訂浮動選單',
+                self::PLUGIN_SLUG => 'SIG自訂固定選單',
             ) );
         } );
 
@@ -53,8 +53,8 @@ class SIG_SMALL_MENU {
 
     public function add_menu_page(){
         add_menu_page(
-            '浮動選單設定',
-            '浮動選單',
+            '固定選單設定',
+            '自訂側邊、底部選單',
             'manage_options',
             self::PLUGIN_SLUG,
             array( $this, 'plugin_settings_page')
@@ -69,10 +69,14 @@ class SIG_SMALL_MENU {
 
     public function add_admin_enqueue_scripts( $hook_suffix ) {
 
-        // color picker
+        // page setting
         if( in_array( $hook_suffix, array( 'toplevel_page_'.self::PLUGIN_SLUG )) ) {
+            wp_enqueue_style( 'sig-small-menu', plugin_dir_url( __FILE__ ) . 'assets/css/setting.css', array() );
+            wp_enqueue_style( 'fontello', plugin_dir_url( __FILE__ ) . 'assets/icon/css/fontello.css' );
+
+            // use wp color picker
             wp_enqueue_style( 'wp-color-picker' );
-            wp_enqueue_script( 'my-script-handle', plugins_url('assets/js/colorPicker/color-picker.js', __FILE__ ), array( 'wp-color-picker' ), false, true );
+            wp_enqueue_script( 'my-color-picker', plugins_url('assets/js/colorPicker/color-picker.js', __FILE__ ), array( 'wp-color-picker' ), false, true );
         }
 
         // select2
@@ -95,29 +99,31 @@ class SIG_SMALL_MENU {
         return [
             'pc' => [
                 'pos'       => ( empty($pc['pos']) or ( !empty($pc['pos']) && ($pc['pos'] !== 'left') ) ) ? 'right' : 'left',
-                'width'     => ( isset($pc['width']) ? $pc['width']: 40 ),
-                'height'    => ( isset($pc['height']) ? $pc['height']: 40 ),
-                'margin'    => ( isset($pc['margin']) ? $pc['margin']: 5 ),
-                'size'      => ( isset($pc['size']) ? $pc['size']: 16 ),
-                'color'     => ( !empty($pc['color']) ? $pc['color']: '#ffffff' ),
-                'icon_size' => ( isset($pc['icon_size']) ? $pc['icon_size']: 16 ),
-                'icon_color'=> ( !empty($pc['icon_color']) ? $pc['icon_color']: '#ffffff' ),
-                'bgcolor'   => ( !empty($pc['bgcolor']) ? $pc['bgcolor']: '#333333' ),
+                'width'     => ( !empty($pc['width']) ? $pc['width']: 50 ),
+                'height'    => ( !empty($pc['height']) ? $pc['height']: 50 ),
                 'br_size'   => ( !empty($pc['br_size']) ? $pc['br_size']: 0 ),
                 'br_color'  => ( !empty($pc['br_color']) ? $pc['br_color']: '#ffffff' ),
-                'close'     => ( !empty($pc['close']) ? $pc['close']: 'no' ),
+                'size'      => ( !empty($pc['size']) ? $pc['size']: 0 ),
+                'color'     => ( !empty($pc['color']) ? $pc['color']: '#ffffff' ),
+                'icon_size' => ( !empty($pc['icon_size']) ? $pc['icon_size']: 0 ),
+                'icon_color'=> ( !empty($pc['icon_color']) ? $pc['icon_color']: '#ffffff' ),
+                'bgcolor'   => ( !empty($pc['bgcolor']) ? $pc['bgcolor']: '#333333' ),
+                'margin'    => ( !empty($pc['margin']) ? $pc['margin']: 0 ),
+                'close'     => ( (!empty($pc['close']) && $pc['close'] === 'yes' ) ? 'yes': 'no' ),
             ],
             'mb' => [
-                'break'     => ( isset($mb['break']) ? $mb['break']: 400 ),
                 'pos'       => ( empty($mb['pos']) or ( !empty($mb['pos']) && ($mb['pos'] !== 'top') ) ) ? 'bottom' : 'top',
-                'height'    => ( isset($mb['height']) ? $mb['height']: 50 ),
-                'size'      => ( isset($mb['size']) ? $mb['size']: 16 ),
-                'color'     => ( !empty($mb['color']) ? $mb['color']: '#ffffff' ),
-                'icon_size' => ( isset($mb['icon_size']) ? $mb['icon_size']: 16 ),
-                'icon_color'=> ( !empty($mb['icon_color']) ? $mb['icon_color']: '#ffffff' ),
-                'bgcolor'   => ( !empty($mb['bgcolor']) ? $mb['bgcolor']: '#333333' ),
+                'height'    => ( !empty($mb['height']) ? $mb['height']: 60 ),
                 'br_size'   => ( !empty($mb['br_size']) ? $mb['br_size']: 0 ),
                 'br_color'  => ( !empty($mb['br_color']) ? $mb['br_color']: '#ffffff' ),
+                'size'      => ( !empty($mb['size']) ? $mb['size']: 0 ),
+                'color'     => ( !empty($mb['color']) ? $mb['color']: '#ffffff' ),
+                'icon_size' => ( !empty($mb['icon_size']) ? $mb['icon_size']: 0 ),
+                'icon_color'=> ( !empty($mb['icon_color']) ? $mb['icon_color']: '#ffffff' ),
+                'bgcolor'   => ( !empty($mb['bgcolor']) ? $mb['bgcolor']: '#333333' ),
+                'break'     => ( !empty($mb['break']) ? $mb['break']: 575 ),
+
+
             ],
         ];
 
@@ -129,105 +135,111 @@ class SIG_SMALL_MENU {
 
 
 ?>
-    <div class="wrap">
+<div class="wrap">
 
-        <h2>浮動選單參數設定</h2>
+    <h2>固定選單參數設定</h2>
 
-        <form method="post" action="options.php">
+    <form method="post" action="options.php">
 
-            <?php settings_fields('sig-small-menu'); ?>
+        <?php settings_fields('sig-small-menu'); ?>
 
-            <h3>桌機版設定：</h3>
-            <table class="form-table">
+        <div class="postbox">
+
+            <h2 class="sig-panel-title open">桌機版設定</h2>
+            <div class="sig-panel-settings" style="display: block;">
+                <table class="form-table">
+                    <tr valign="top">
+                        <th scope="row">顯示位置</th>
+                        <td>
+                            <label>頁面左側：<input type="radio" name="_sig_small_pc[pos]" value="left" <?php echo checked($opt['pc']['pos'],'left',false)?>/></label>，
+                            <label>頁面右側：<input type="radio" name="_sig_small_pc[pos]" value="right" <?php echo checked($opt['pc']['pos'],'right',false)?>/></label>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row">項目寬高</th>
+                        <td>
+                            寬：<input type="number" class="small-text" name="_sig_small_pc[width]" min="10" value="<?php echo esc_attr( $opt['pc']['width'] );?>" /> px
+                            ，高：<input type="number" class="small-text" name="_sig_small_pc[height]" min="10" value="<?php echo esc_attr( $opt['pc']['height'] );?>" /> px
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row">項目框線</th>
+                        <td>
+                            <div class="flex-middle">
+                                <p>
+                                    <label>大小：</label>
+                                    <input type="number" class="small-text" name="_sig_small_pc[br_size]" min="0" value="<?php echo esc_attr( $opt['pc']['br_size'] );?>" /> px (設為 0 表示不顯示)
+                                </p>
+                                <p>
+                                    <label>顏色：</label>
+                                    <input type="text" class="sig-color-field" name="_sig_small_pc[br_color]" value="<?php echo esc_attr( $opt['pc']['br_color'] );?>" />
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row">項目文字</th>
+                        <td>
+                            <div class="flex-middle">
+                                <p>
+                                    <label>大小：</label>
+                                    <input type="number" class="small-text" name="_sig_small_pc[size]" min="0" value="<?php echo esc_attr( $opt['pc']['size'] );?>" /> px (設為 0 表示不顯示)
+                                </p>
+                                <p>
+                                    <label>顏色：</label>
+                                    <input type="text" class="sig-color-field" name="_sig_small_pc[color]" value="<?php echo esc_attr( $opt['pc']['color'] );?>" />
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row">項目Icon</th>
+                        <td>
+                            <div class="flex-middle">
+                                <p>
+                                    <label>大小：</label>
+                                    <input type="number" class="small-text" name="_sig_small_pc[icon_size]" min="0" value="<?php echo esc_attr( $opt['pc']['icon_size'] );?>" /> px (設為 0 表示不顯示)
+                                </p>
+                                <p>
+                                    <label>顏色：</label>
+                                    <input type="text" class="sig-color-field" name="_sig_small_pc[icon_color]" value="<?php echo esc_attr( $opt['pc']['icon_color'] );?>" />
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row">項目背景色</th>
+                        <td>
+                            <input type="text" class="sig-color-field" name="_sig_small_pc[bgcolor]" value="<?php echo esc_attr( $opt['pc']['bgcolor'] );?>" />
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row">項目上下間隔</th>
+                        <td>
+                            <input type="number" class="small-text" name="_sig_small_pc[margin]" min="0" value="<?php echo esc_attr( $opt['pc']['margin'] );?>" /> px
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row">項目收合</th>
+                        <td>
+                            <label><input type="checkbox" name="_sig_small_pc[close]" value="yes" <?php echo checked( $opt['pc']['close'], 'yes' );?> /> 選單可點擊收合</label>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+
+        <div class="postbox">
+
+            <h2 class="sig-panel-title">手機版設定</h2>
+            <div class="sig-panel-settings" style="display: none;">
+                <table class="form-table">
                 <tr valign="top">
                     <th scope="row">顯示位置</th>
                     <td>
-                        <label>靠左：<input type="radio" name="_sig_small_pc[pos]" value="left" <?php echo checked($opt['pc']['pos'],'left',false)?>/></label>，
-                        <label>靠右：<input type="radio" name="_sig_small_pc[pos]" value="right" <?php echo checked($opt['pc']['pos'],'right',false)?>/></label>
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">項目寬高</th>
-                    <td>
-                        寬：<input type="number" class="small-text" name="_sig_small_pc[width]" min="10" value="<?php echo esc_attr( $opt['pc']['width'] );?>" /> px
-                        ，高：<input type="number" class="small-text" name="_sig_small_pc[height]" min="10" value="<?php echo esc_attr( $opt['pc']['height'] );?>" /> px
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">項目框線</th>
-                    <td>
-                        <p>
-                            <label>大小：</label>
-                            <input type="number" class="small-text" name="_sig_small_pc[br_size]" min="0" value="<?php echo esc_attr( $opt['pc']['br_size'] );?>" /> px (設為 0 表示不顯示)
-                        </p>
-                        <p>
-                            <label>顏色：</label>
-                            <input type="text" class="sig-color-field" name="_sig_small_pc[br_color]" value="<?php echo esc_attr( $opt['pc']['br_color'] );?>" />
-                        </p>
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">項目上下間隔</th>
-                    <td>
-                        <input type="number" class="small-text" name="_sig_small_pc[margin]" min="0" value="<?php echo esc_attr( $opt['pc']['margin'] );?>" /> px
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">項目文字</th>
-                    <td>
-                        <p>
-                            <label>大小：</label>
-                            <input type="number" class="small-text" name="_sig_small_pc[size]" min="0" value="<?php echo esc_attr( $opt['pc']['size'] );?>" /> px (設為 0 表示不顯示)
-                        </p>
-                        <p>
-                            <label>顏色：</label>
-                            <input type="text" class="sig-color-field" name="_sig_small_pc[color]" value="<?php echo esc_attr( $opt['pc']['color'] );?>" />
-                        </p>
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">項目Icon</th>
-                    <td>
-                        <p>
-                            <label>大小：</label>
-                            <input type="number" class="small-text" name="_sig_small_pc[icon_size]" min="0" value="<?php echo esc_attr( $opt['pc']['icon_size'] );?>" /> px (設為 0 表示不顯示)
-                        </p>
-                        <p>
-                            <label>顏色：</label>
-                            <input type="text" class="sig-color-field" name="_sig_small_pc[icon_color]" value="<?php echo esc_attr( $opt['pc']['icon_color'] );?>" />
-                        </p>
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">項目背景色</th>
-                    <td>
-                        <input type="text" class="sig-color-field" name="_sig_small_pc[bgcolor]" value="<?php echo esc_attr( $opt['pc']['bgcolor'] );?>" />
-                    </td>
-                </tr>
-
-                <tr valign="top">
-                    <th scope="row">項目收合</th>
-                    <td>
-                        <label><input type="checkbox" name="_sig_small_pc[close]" value="yes" <?php echo checked( $opt['pc']['close'], 'yes' );?> /> 選單可點擊收合</label>
-                    </td>
-                </tr>
-            </table>
-
-            <hr>
-
-            <h3>手機版設定：</h3>
-            <table class="form-table">
-                <tr valign="top">
-                    <th scope="row">界定最大寬度</th>
-                    <td>
-                        <input type="number" class="small-text" name="_sig_small_mb[break]" min="0" value="<?php echo esc_attr( $opt['mb']['break'] );?>" /> px (螢幕超過此寬度即為桌機版)
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">顯示位置</th>
-                    <td>
-                        <label>靠上：<input type="radio" name="_sig_small_mb[pos]" value="top" <?php echo checked($opt['mb']['pos'],'top',false)?>/></label>，
-                        <label>靠下：<input type="radio" name="_sig_small_mb[pos]" value="right" <?php echo checked($opt['mb']['pos'],'bottom',false)?>/></label>
+                        <label>頁面上方：<input type="radio" name="_sig_small_mb[pos]" value="top" <?php echo checked($opt['mb']['pos'],'top',false)?>/></label>，
+                        <label>頁面下方：<input type="radio" name="_sig_small_mb[pos]" value="right" <?php echo checked($opt['mb']['pos'],'bottom',false)?>/></label>
                     </td>
                 </tr>
                 <tr valign="top">
@@ -239,40 +251,46 @@ class SIG_SMALL_MENU {
                 <tr valign="top">
                     <th scope="row">項目框線</th>
                     <td>
-                        <p>
-                            <label>大小：</label>
-                            <input type="number" class="small-text" name="_sig_small_mb[br_size]" min="0" value="<?php echo esc_attr( $opt['mb']['br_size'] );?>" /> px (設為 0 表示不顯示)
-                        </p>
-                        <p>
-                            <label>顏色：</label>
-                            <input type="text" class="sig-color-field" name="_sig_small_mb[br_color]" value="<?php echo esc_attr( $opt['mb']['br_color'] );?>" />
-                        </p>
+                        <div class="flex-middle">
+                            <p>
+                                <label>大小：</label>
+                                <input type="number" class="small-text" name="_sig_small_mb[br_size]" min="0" value="<?php echo esc_attr( $opt['mb']['br_size'] );?>" /> px (設為 0 表示不顯示)
+                            </p>
+                            <p>
+                                <label>顏色：</label>
+                                <input type="text" class="sig-color-field" name="_sig_small_mb[br_color]" value="<?php echo esc_attr( $opt['mb']['br_color'] );?>" />
+                            </p>
+                        </div>
                     </td>
                 </tr>
                 <tr valign="top">
                     <th scope="row">項目文字</th>
                     <td>
-                        <p>
-                            <label>大小：</label>
-                            <input type="number" class="small-text" name="_sig_small_mb[size]" min="0" value="<?php echo esc_attr( $opt['mb']['size'] );?>" /> px (設為 0 表示不顯示)
-                        </p>
-                        <p>
-                           <label>顏色：</label>
-                           <input type="text" class="sig-color-field" name="_sig_small_mb[color]" value="<?php echo esc_attr( $opt['mb']['color'] );?>" />
-                        </p>
+                        <div class="flex-middle">
+                            <p>
+                                <label>大小：</label>
+                                <input type="number" class="small-text" name="_sig_small_mb[size]" min="0" value="<?php echo esc_attr( $opt['mb']['size'] );?>" /> px (設為 0 表示不顯示)
+                            </p>
+                            <p>
+                                <label>顏色：</label>
+                                <input type="text" class="sig-color-field" name="_sig_small_mb[color]" value="<?php echo esc_attr( $opt['mb']['color'] );?>" />
+                            </p>
+                        </div>
                     </td>
                 </tr>
                 <tr valign="top">
                     <th scope="row">項目Icon</th>
                     <td>
-                        <p>
-                            <label>大小：</label>
-                            <input type="number" class="small-text" name="_sig_small_mb[icon_size]" min="0" value="<?php echo esc_attr( $opt['mb']['icon_size'] );?>" /> px (設為 0 表示不顯示)
-                        </p>
-                        <p>
-                           <label>顏色：</label>
-                           <input type="text" class="sig-color-field" name="_sig_small_mb[icon_color]" value="<?php echo esc_attr( $opt['mb']['icon_color'] );?>" />
-                        </p>
+                        <div class="flex-middle">
+                            <p>
+                                <label>大小：</label>
+                                <input type="number" class="small-text" name="_sig_small_mb[icon_size]" min="0" value="<?php echo esc_attr( $opt['mb']['icon_size'] );?>" /> px (設為 0 表示不顯示)
+                            </p>
+                            <p>
+                                <label>顏色：</label>
+                                <input type="text" class="sig-color-field" name="_sig_small_mb[icon_color]" value="<?php echo esc_attr( $opt['mb']['icon_color'] );?>" />
+                            </p>
+                        </div>
                     </td>
                 </tr>
                 <tr valign="top">
@@ -281,11 +299,29 @@ class SIG_SMALL_MENU {
                         <input type="text" class="sig-color-field" name="_sig_small_mb[bgcolor]" value="<?php echo esc_attr( $opt['mb']['bgcolor'] );?>" />
                     </td>
                 </tr>
-            </table>
-            <?php submit_button(); ?>
+                <tr valign="top">
+                    <th scope="row">界定最大寬度</th>
+                    <td>
+                        <input type="number" class="small-text" name="_sig_small_mb[break]" min="0" value="<?php echo esc_attr( $opt['mb']['break'] );?>" /> px (螢幕超過此寬度即為桌機版)
+                    </td>
+                </tr>
+                </table>
+            </div>
 
-        </form>
-    </div>
+        </div>
+
+        <?php submit_button(); ?>
+
+    </form>
+</div>
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    $('.sig-panel-title').on('click',function(){
+        $(this).toggleClass('open');
+        $(this).siblings('.sig-panel-settings').slideToggle();
+    });
+});
+ </script>
 <?php
 
     }
