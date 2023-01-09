@@ -5,7 +5,7 @@ Plugin URI:  https://github.com/mark2me/sig-small-menu
 Description: 利用佈景的自訂選單製作出側邊和手機版底部的固定位置選單。
 Author:       Simon Chunag
 Author URI:   https://github.com/mark2me
-Version:      1.0
+Version:      1.0.1
 Text Domain:  sig-small-menu
 Domain Path:  /languages
 */
@@ -385,8 +385,8 @@ $('a.sig-small-close').on('click', function(e){
 }
 @media (max-width: <?php echo esc_attr($opt['mb']['break']) ?>px){
 body{padding-<?php echo esc_attr($opt['mb']['pos'])?>: <?php echo esc_attr($opt['mb']['height']) ?>px !important;}
-#sig_smenu_space{ height: <?php echo esc_attr($opt['mb']['height']) ?>px; }
-.sig-small-menu-wrap{ width: 100%; <?php echo esc_attr($opt['mb']['pos']) ?>: 0; }
+#sig_smenu_space{ height: <?php echo esc_attr($opt['mb']['height']) ?>px;}
+.sig-small-menu-wrap{ width: 100%; <?php echo esc_attr($opt['mb']['pos']) ?>: 0;left:0 !important;right:0 !important;  }
 .sig-small-menu-wrap ul{ display: flex; }
 .sig-small-menu-wrap li{ border-top:<?php echo esc_attr($opt['mb']['br_size']) ?>px solid <?php echo esc_attr($opt['mb']['br_color']) ?>; background-color: <?php echo esc_attr($opt['mb']['bgcolor']) ?>; flex: 1 0 0%; }
 .sig-small-menu-wrap li+li{ border-left:<?php echo esc_attr($opt['mb']['br_size']) ?>px solid <?php echo esc_attr($opt['mb']['br_color']) ?>; }

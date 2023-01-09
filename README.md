@@ -6,5 +6,8 @@
 
 == Changelog ==
 
+= 1.0.1 =
+* fixed menu position on mobile
+
 = 1.0 =
 * Initial Public Release
